@@ -1,0 +1,49 @@
+import requests
+from bs4 import BeautifulSoup
+import random
+
+# Sample styles
+styles = ["cyberpunk", "fantasy", "abstract", "surreal", "minimalist", "steampunk", "vintage", "futuristic"]
+
+def fetch_trending_topics(url):
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print("Failed to retrieve the web page.")
+        return []
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Example: Assuming trending topics are listed within <a> tags with a specific class
+    trending_topics = [tag.text for tag in soup.find_all('a', class_='trending-topic-class')]
+
+    return trending_topics
+
+def generate_prompts(topic, num_prompts=5):
+    prompts = []
+    for _ in range(num_prompts):
+        style = random.choice(styles)
+        prompt = f"Create an AI-generated image of {topic} in a {style} style."
+        prompts.append(prompt)
+    return prompts
+
+if __name__ == "__main__":
+    url = 'https://stock.adobe.com/trending-topics'
+    trending_topics = fetch_trending_topics(url)
+
+    if not trending_topics:
+        print("No trending topics found or failed to retrieve trending topics.")
+    else:
+        print("Trending topics retrieved successfully.")
+        print("Trending Topics:", trending_topics)
+
+    topic = input("Enter a topic for AI image prompts: ").strip()
+
+    if topic.lower() in [t.lower() for t in trending_topics]:
+        print(f"Generating prompts for the trending topic: {topic}")
+    else:
+        print(f"Generating prompts for the topic: {topic}")
+
+    prompts = generate_prompts(topic)
+    for i, prompt in enumerate(prompts, 1):
+        print(f"Prompt {i}: {prompt}")
